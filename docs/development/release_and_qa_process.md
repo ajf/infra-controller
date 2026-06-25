@@ -4,6 +4,22 @@ This page describes how the NVIDIA Infra Controller (NICo) project is branched,
 versioned, tested, and released. It is intended for both contributors and
 operators who want to understand which version of NICo they should be running.
 
+## TL;DR
+
+- Use the latest final `vX.Y.Z` tag for production-style deployments.
+- `main`, `-pr`, and `-rc` builds are for prerelease testing.
+- Every month, `main` branches to `releases/vX.Y`; after one month of QA,
+  that branch becomes the final `vX.Y.0` release.
+- Patch releases stay on the same `releases/vX.Y` branch and ship only when
+  fixes warrant them.
+- NICo keeps three minor releases visible: Current, Maintenance, and EOL.
+  Upgrades are supported from EOL to Maintenance or Current, from Maintenance
+  to Current, and to newer patches in the same minor. Anything older than EOL
+  has no supported upgrade path.
+- Guaranteed public APIs stay backward-compatible within a major version.
+  Breaking removals require a future major release and at least one full
+  three-month roadmap window of notice.
+
 ## Where Releases Live
 
 - **GitHub releases:** <https://github.com/NVIDIA/infra-controller/releases>
@@ -90,6 +106,23 @@ end-of-year break, US Thanksgiving week, Lunar New Year, and Diwali — out of
 respect for the work/life balance of contributors and operators who observe
 them. When the published schedule would otherwise land a release inside one
 of these windows, the release is rescheduled to the next practical date.
+
+### Three-Month Rolling Roadmap
+
+NICo maintains a three-month rolling roadmap alongside the monthly release
+cadence. The roadmap gives contributors, QA, and operators a current view of
+the next three planned minor-release cycles, including:
+
+- planned feature themes or notable work targeted for each minor release;
+- expected code-complete dates, QA windows, and final release targets;
+- known schedule risks, dependency risks, or holiday-window adjustments; and
+- items that have moved into or out of a cycle since the previous update.
+
+The roadmap is refreshed at least once per month, typically after the monthly
+branch cut and prerelease tag, so it always rolls forward to keep three months
+visible. It is planning guidance rather than a release guarantee: features may
+move between cycles as priorities change, QA findings emerge, or release dates
+are adjusted.
 
 ### Minor Releases (`X.Y.0`)
 
@@ -363,6 +396,31 @@ The two fields move semi-independently:
 Breaking changes are **not allowed** anywhere in the codebase for anything that
 falls under our API guarantees.
 
+### Deprecation and Breaking-Change Notice
+
+Guaranteed public APIs may be deprecated before a future breaking change, but
+deprecation is a warning, not removal. A deprecated guaranteed API must remain
+functional for the rest of the current major version.
+
+Removal of, or an incompatible behavior change to, a guaranteed public API is
+allowed only in a future major release. Any such change must be announced in the
+release notes and the three-month rolling roadmap, and should include a
+replacement or migration path when one exists.
+
+When practical, deprecated public APIs should also produce an operator-visible
+warning, such as an API warning, CLI warning, log message, or release-note
+callout.
+
+The minimum notice period for a breaking change to a guaranteed public API is
+one full three-month rolling-roadmap window before the first release that removes
+or changes it incompatibly. Emergency exceptions for security, data corruption,
+or similarly severe issues must be called out explicitly in the release notes.
+
+This notice policy applies only to the guaranteed surfaces below. Internal APIs
+and storage formats listed under
+[What Is Explicitly *Not* Guaranteed](#what-is-explicitly-not-guaranteed) may
+change between releases.
+
 ### What Is Guaranteed to Remain Backward Compatible
 
 - The **NICo REST API**.
@@ -429,3 +487,6 @@ A few terms used on this page that may not be obvious:
   fixes, critical blockers).
 - **End-of-Life (EOL)** — the minor release two versions behind Current. No
   longer receives fixes. Users should upgrade to Maintenance or Current.
+- **Three-month rolling roadmap** — a planning view of the next three planned
+  minor-release cycles. It is refreshed monthly and used for coordination,
+  not as a release guarantee.
